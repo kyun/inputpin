@@ -6,8 +6,8 @@ interface Props {
   className?: string;
   inputStyle?: React.CSSProperties;
   id?: string;
-  value?: string;
-  setValue?: (v: string) => void;
+  value: string;
+  setValue: (e: any) => void;
 }
 
 const InputPin: React.FC<Props> = ({
@@ -20,19 +20,24 @@ const InputPin: React.FC<Props> = ({
   inputStyle,
 }) => {
   const arrayRef = React.useRef<any>([]);
-  const [values, setValues] = React.useState<any[]>(new Array(length).fill(''));
   const [targetIndex, setTargetIndex] = React.useState(0);
 
+  const valArr = React.useMemo(() => {
+    return value
+      .split('')
+      .concat(new Array(length - value.split('').length).fill(''));
+  }, [value]);
   const handleChange = (index: number) => {
     return (e: any) => {
-      setValues((prev: any[]) => {
-        return prev.map((item, i) => {
+      const out = valArr
+        .map((item, i) => {
           if (i === index) {
             return e.target.value.slice(-1);
           }
           return item;
-        });
-      });
+        })
+        .join('');
+      setValue(out);
       if (e.target.value) {
         const nextIndex = index + 1;
         const tIndex = nextIndex >= length ? length - 1 : nextIndex;
@@ -46,11 +51,6 @@ const InputPin: React.FC<Props> = ({
     };
   };
 
-  React.useEffect(() => {
-    if (values.length) {
-      setValue?.(values.join(''));
-    }
-  }, [values]);
   const handleBackspace = (index: number) => {
     const tIndex = index - 1 < 0 ? 0 : index - 1;
     arrayRef.current[tIndex]?.focus();
@@ -67,9 +67,10 @@ const InputPin: React.FC<Props> = ({
     e.preventDefault();
     e.stopPropagation();
   };
+  console.log(value);
   return (
     <label className={className} htmlFor={`${id}-${targetIndex}`}>
-      {values.map((v, i) => {
+      {new Array(length).fill('').map((v, i) => {
         return (
           <input
             onClick={forceFocus}
@@ -80,7 +81,7 @@ const InputPin: React.FC<Props> = ({
             onKeyUp={handleKeyUp(i)}
             ref={(el) => (arrayRef.current[i] = el)}
             type={type}
-            value={v}
+            value={valArr[i]}
             onChange={handleChange(i)}
           />
         );
