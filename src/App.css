@@ -38,3 +38,16 @@
     transform: rotate(360deg);
   }
 }
+
+
+.input1{
+  display: inline-flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: rgba(0,0,0,0.16);
+}
+
+.input1 > input {
+  width: 48px;
+  height: 48px;
+}

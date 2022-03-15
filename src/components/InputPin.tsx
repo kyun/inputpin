@@ -1,46 +1,47 @@
 import React from 'react';
 
 interface Props{
-  type?: string;
-  inputMode?: string;
   length?: number;
-  defaultValue?: string;
-  onChange?: (e: any) => void;
-  onComplete?: () => void;
-  render?: () => React.ReactNode;
-  [key: string]: any;  
+  className?: string;
+  inputStyle?: React.CSSProperties;
 }
 
-const InputPin: React.FC<Props> = ({ length = 4}) => {
-  const ref1 = React.useRef<HTMLInputElement>(null);
-  const ref2 = React.useRef<HTMLInputElement>(null);
+const InputPin: React.FC<Props> = ({ length = 4, className, inputStyle}) => {
   const arrayRef = React.useRef<any>([]);
+  const [values, setValues] = React.useState<any[]>(new Array(length).fill(''));
 
-  const items = React.useMemo(() => {
-    return new Array(length).fill(0);
-  }, [length]);
 
-  const [value, setValue] = React.useState<any[]>(new Array(length).fill(0));
-
-  const handleChange = (e: any, index: number) => {
-    console.log(e.target.value.slice(-1), index)
-    setValue((prev: any[]) => {
-      return prev.map((item, i) => {
-        if (i === index) {
-          return e.target.value.slice(-1);
-        }
-        return item;
-      })
-    });
-    arrayRef.current[index+1]?.focus();
+  const handleChange = (index: number) => {
+    return (e: any) => {
+      console.log(e.target.value)
+      setValues((prev: any[]) => {
+        return prev.map((item, i) => {
+          if (i === index) {
+            return e.target.value.slice(-1);
+          }
+          return item;
+        })
+      });
+      if (e.target.value) {
+        arrayRef.current[index+1]?.focus();
+      }
+    }
+  }
+  const handleBackspace = (index: number) => {
+    console.log(values);
+    arrayRef.current[index-1]?.focus();
   }
 
-  console.log(value);
-
-  return <label>
+  const handleKeyUp = (index: number) =>  (e: any) => {
+    console.log(e.keyCode);
+    if (e.keyCode === 8) {
+      handleBackspace(index);
+    }
+  }
+  return <label className={className}>
     {
-      items.map((_, i) => {
-        return <input key={i} ref={el => arrayRef.current[i] = el} type="text" value={value[i]} onChange={(e)=>handleChange(e, i)} />
+      values.map((v, i) => {
+        return <input style={inputStyle} key={i} onKeyUp={handleKeyUp(i)} ref={el => arrayRef.current[i] = el} type="text" value={v} onChange={handleChange(i)} />
       })
     }
   </label>
