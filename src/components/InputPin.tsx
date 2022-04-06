@@ -8,6 +8,7 @@ interface Props {
   id?: string;
   value: string;
   setValue: (e: any) => void;
+  onComplete?: (str: string) => void;
 }
 
 const InputPin: React.FC<Props> = ({
@@ -18,6 +19,7 @@ const InputPin: React.FC<Props> = ({
   length = 4,
   className,
   inputStyle,
+  onComplete,
 }) => {
   const arrayRef = React.useRef<any>([]);
   const [targetIndex, setTargetIndex] = React.useState(0);
@@ -43,7 +45,10 @@ const InputPin: React.FC<Props> = ({
         const tIndex = nextIndex >= length ? length - 1 : nextIndex;
         setTargetIndex(tIndex);
         if (nextIndex >= length) {
-          arrayRef.current[tIndex]?.blur();
+          if (onComplete) {
+            onComplete(out);
+            arrayRef.current[tIndex]?.blur();
+          }
         } else {
           arrayRef.current[tIndex]?.focus();
         }
